@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+
+  @@index([email])
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  CASHIER
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@index([name])
+}
+
+model Product {
+  id               String              @id @default(uuid())
+  name             String
+  sku              String              @unique
+  price            Float
+  stock            Int                 @default(0)
+  categoryId       String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  category         Category            @relation(fields: [categoryId], references: [id])
+  movements        InventoryMovement[]
+  transactionItems TransactionItem[]
+
+  @@index([sku])
+  @@index([categoryId])
+}
+
+model InventoryMovement {
+  id            String       @id @default(uuid())
+  productId     String
+  type          MovementType
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  createdBy     String
+  createdAt     DateTime     @default(now())
+  product       Product      @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum MovementType {
+  STOCK_IN
+  SALE
+  ADJUSTMENT
+}
+
+model Transaction {
+  id          String            @id @default(uuid())
+  cashierId   String
+  totalAmount Float
+  createdAt   DateTime          @default(now())
+  items       TransactionItem[]
+  cashier     User              @relation(fields: [cashierId], references: [id])
+
+  @@index([cashierId])
+  @@index([createdAt])
+}
+
+model TransactionItem {
+  id            String      @id @default(uuid())
+  transactionId String
+  productId     String
+  quantity      Int
+  unitPrice     Float
+  subtotal      Float
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  product       Product     @relation(fields: [productId], references: [id])
+
+  @@unique([transactionId, productId])
+  @@index([transactionId])
+  @@index([productId])
+}
