@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import AuthService from '../../modules/auth/auth.service';
+const AuthService = require('../../modules/auth/auth.service');
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -12,9 +11,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const token = authHeader.substring(7);
     const user = await AuthService.verifyToken(token);
 
-    (req as any).user = user;
+    req.user = user;
     next();
-  } catch (err: any) {
+  } catch (err) {
     return next(err);
   }
 };
+
+module.exports = { authMiddleware };

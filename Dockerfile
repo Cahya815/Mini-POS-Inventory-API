@@ -1,25 +1,4 @@
-# Build stage
-FROM node:18 AS builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Install all dependencies (including dev)
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Generate Prisma Client
-RUN npm run prisma:generate
-
-# Build TypeScript
-RUN npm run build
-
-# Production stage
+# Runtime stage only (no build stage needed for JavaScript)
 FROM node:18
 
 WORKDIR /app
@@ -28,27 +7,17 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install ALL dependencies (including dev, for ts-node and nodemon in dev mode)
-RUN npm ci
+# Install production dependencies only
+RUN npm ci --only=production
 
-# Rebuild native modules
-RUN npm rebuild
+# Generate Prisma Client
+RUN npm run prisma:generate
 
-# Copy built app from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-# Copy source code for ts-node (development)
-COPY . .
+# Copy source code
+COPY src ./src
 
 # Expose port
 EXPOSE 3000
 
 # Start the app
-CMD ["node", "dist/server.js"]
-
-# Expose port
-EXPOSE 3000
-
-# Start the app
-CMD ["node", "dist/server.js"]
+CMD ["node", "src/server.js"]

@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+require('dotenv').config();
 
-dotenv.config();
-
-export const config = {
+const config = {
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
   databaseUrl: process.env.DATABASE_URL,
@@ -12,9 +10,11 @@ export const config = {
 };
 
 // Validate required config
-const requiredKeys: (keyof typeof config)[] = ['databaseUrl', 'jwtSecret'];
+const requiredKeys = ['databaseUrl', 'jwtSecret'];
 for (const key of requiredKeys) {
   if (!config[key]) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
 }
+
+module.exports = { config };

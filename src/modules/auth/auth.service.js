@@ -1,20 +1,20 @@
-import { PrismaClient, Role } from '@prisma/client';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { config } from '../../config/env';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { config } = require('../../config/env');
 
 const prisma = new PrismaClient();
 
 const SALT_ROUNDS = config.bcryptSaltRounds;
-const JWT_SECRET = config.jwtSecret as string;
+const JWT_SECRET = config.jwtSecret;
 const JWT_EXPIRES_IN = config.jwtExpiresIn;
 
 class AuthService {
-  static async register(name: string, email: string, password: string) {
+  static async register(name, email, password) {
     // Check if email already exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      const error: any = new Error('Email already in use');
+      const error = new Error('Email already in use');
       error.code = 'UNIQUE_CONSTRAINT_ERROR';
       throw error;
     }
@@ -25,7 +25,7 @@ class AuthService {
         name,
         email,
         passwordHash,
-        role: Role.CASHIER,
+        role: 'CASHIER',
       },
       select: {
         id: true,
@@ -37,16 +37,16 @@ class AuthService {
     return user;
   }
 
-  static async login(email: string, password: string) {
+  static async login(email, password) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      const error: any = new Error('Invalid credentials');
+      const error = new Error('Invalid credentials');
       error.code = 'UNAUTHORIZED';
       throw error;
     }
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
-      const error: any = new Error('Invalid credentials');
+      const error = new Error('Invalid credentials');
       error.code = 'UNAUTHORIZED';
       throw error;
     }
@@ -54,19 +54,19 @@ class AuthService {
       sub: user.id,
       role: user.role,
     };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } as any);
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
     return token;
   }
 
-  static async verifyToken(token: string) {
+  static async verifyToken(token) {
     try {
-      return jwt.verify(token, JWT_SECRET) as { sub: string; role: Role };
+      return jwt.verify(token, JWT_SECRET);
     } catch (err) {
-      const error: any = new Error('Invalid token');
+      const error = new Error('Invalid token');
       error.code = 'UNAUTHORIZED';
       throw error;
     }
   }
 }
 
-export default AuthService;
+module.exports = AuthService;

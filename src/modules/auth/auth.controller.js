@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import AuthService from './auth.service';
+const AuthService = require('./auth.service');
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -12,12 +11,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
     const token = await AuthService.login(email, password);
     return res.json({ success: true, data: { token } });
-  } catch (err: any) {
+  } catch (err) {
     return next(err);
   }
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -31,7 +30,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       success: true,
       data: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
-  } catch (err: any) {
+  } catch (err) {
     return next(err);
   }
 };
+
+module.exports = { login, register };

@@ -1,7 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import authRouter from './modules/auth/auth.routes';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const authRouter = require('./modules/auth/auth.routes');
+const userRouter = require('./modules/users/user.routes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
 
 // 404 handler
 app.use((req, res) => {
@@ -30,7 +32,7 @@ app.use((req, res) => {
 });
 
 // Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err, req, res, next) => {
   console.error('Error:', err);
 
   const statusCode = err.statusCode || 500;
@@ -43,4 +45,4 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-export default app;
+module.exports = app;

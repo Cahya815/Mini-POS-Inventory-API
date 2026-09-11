@@ -56,7 +56,7 @@ PostgreSQL
 Backend
 Node.js
 Express.js
-TypeScript
+JavaScript
 Database
 PostgreSQL
 ORM
@@ -83,8 +83,8 @@ Swagger / OpenAPI
 src/
 
 ├── config/
-│   ├── env.ts
-│   └── database.ts
+│   ├── env.js
+│   └── database.js
 │
 ├── common/
 │   ├── errors/
@@ -95,20 +95,20 @@ src/
 ├── modules/
 │
 │   ├── auth/
-│   │   ├── auth.controller.ts
-│   │   ├── auth.service.ts
-│   │   ├── auth.routes.ts
-│   │   └── auth.schema.ts
+│   │   ├── auth.controller.js
+│   │   ├── auth.service.js
+│   │   ├── auth.routes.js
+│   │   └── auth.schema.js
 │   │
 │   ├── users/
-│   │   ├── user.controller.ts
-│   │   ├── user.service.ts
-│   │   └── user.routes.ts
+│   │   ├── user.controller.js
+│   │   ├── user.service.js
+│   │   └── user.routes.js
 │   │
 │   ├── products/
-│   │   ├── product.controller.ts
-│   │   ├── product.service.ts
-│   │   └── product.routes.ts
+│   │   ├── product.controller.js
+│   │   ├── product.service.js
+│   │   └── product.routes.js
 │   │
 │   ├── categories/
 │   │
@@ -116,8 +116,8 @@ src/
 │   │
 │   └── transactions/
 │
-├── app.ts
-└── server.ts
+├── app.js
+└── server.js
 5. Layer Responsibilities
 Controller
 
