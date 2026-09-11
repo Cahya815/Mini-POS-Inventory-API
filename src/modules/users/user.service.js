@@ -63,7 +63,8 @@ class UserService {
       return updated;
     } catch (err) {
       if (err instanceof z.ZodError) {
-        throw new ValidationError(`Invalid role: ${err.errors[0]?.message || 'Unknown error'}`);
+        const msg = err.issues?.[0]?.message || 'Unknown error';
+        throw new ValidationError(`Invalid role: ${msg}`);
       }
       throw new Error('Failed to update user role');
     }

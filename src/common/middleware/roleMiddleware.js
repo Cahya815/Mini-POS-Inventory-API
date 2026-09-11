@@ -1,19 +1,35 @@
-const { AppError } = require('../errors/AppError');
-
-const roleMiddleware = (...allowedRoles) => {
+const roleMiddleware = (allowedRoles = []) => {
   return (req, res, next) => {
-    const user = req.user;
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+        });
+      }
 
-    if (!user || !user.role) {
-      throw new AppError('User not authenticated', 401, 'UNAUTHORIZED');
+      if (allowedRoles.length === 0) {
+        // No role restriction; allow all authenticated users
+        return next();
+      }
+
+      const userRole = req.user.role;
+
+      if (!allowedRoles.includes(userRole)) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: `Access denied. Required roles: ${allowedRoles.join(', ')}`,
+          },
+        });
+      }
+
+      next();
+    } catch (err) {
+      next(err);
     }
-
-    if (!allowedRoles.includes(user.role)) {
-      throw new AppError('Insufficient permissions', 403, 'FORBIDDEN');
-    }
-
-    next();
   };
 };
 
-module.exports = { roleMiddleware };
+module.exports = roleMiddleware;

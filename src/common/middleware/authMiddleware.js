@@ -4,8 +4,9 @@ const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
+    // Optional auth — only verify if token is provided
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new Error('No authorization token');
+      return next();
     }
 
     const token = authHeader.substring(7);
@@ -14,7 +15,9 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    return next(err);
+    // Invalid token — set req.user to null so roleMiddleware can reject
+    req.user = null;
+    next();
   }
 };
 
